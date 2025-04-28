@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Editor files
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Node.js (if you add dependencies later)
+node_modules/
+package-lock.json
+
+# Build artifacts
+dist/
+build/
