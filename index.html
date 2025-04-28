@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -312,7 +313,7 @@
       width: 0%;
       height: 20px;
       background-color: var(--primary);
-      transition: width 0.05s ease-in-out;
+      transition: width 0.1s linear;
       text-align: center;
       color: white;
       font-size: 0.8rem;
@@ -343,7 +344,7 @@
     .footer-links a {
       color: var(--primary);
       text-decoration: none;
-      margin: 0 10px;
+      margin: 0 15px;
       font-size: 0.9rem;
       transition: color 0.3s;
     }
@@ -418,8 +419,8 @@
         padding: 10px;
       }
       .footer-links a {
-        display: inline;
-        margin: 8px 5px;
+        display: block;
+        margin: 8px 0;
       }
       .key-card, .long-term-card {
         padding: 10px;
@@ -496,18 +497,14 @@
     </div>
   </div>
 
- <footer>
+  <footer>
     <div class="footer-content">
       <div class="footer-links">
-        <span>
           <a href="https://allesvoorbitcoin.be/">Home</a> | 
           <a href="https://coinos.io/pay/allesvoorbitcoin">Donate</a> | 
           <a href="https://allesvoorbitcoin.be/write/encrypt/">Encrypt w AES tool</a> |
-          <a href="https://github.com/avbpodcast/TimeSeed/releases" onclick="downloadPage()">Download on Github</a> | 
-          <a href="nostr:npub1sec6degc3ae7warveuxaz6dlffnc2sutwtqjr7pmll7sf7ypjngsd4p0l7">Contact</a> | 
-          
-v 2025.04-c
-        </span>
+           <a href="https://github.com/avbpodcast/TimeSeed/releases" onclick="downloadPage()">Download on Github</a> | 
+     <a href="nostr:npub1sec6degc3ae7warveuxaz6dlffnc2sutwtqjr7pmll7sf7ypjngsd4p0l7">Contact</a> | v 2025.04-c        </span>
       </div>
     </div>
   </footer>
@@ -546,7 +543,7 @@ v 2025.04-c
       return calibratedIterations;
     }
 
-    function clearSession(fullReset = distrust) {
+    function clearSession(fullReset = true) {
       console.log("clearSession called, fullReset:", fullReset);
       const entropyOutput = document.getElementById("entropyOutput");
       const outputDiv = document.getElementById("output");
@@ -594,19 +591,6 @@ v 2025.04-c
       }
     }
 
-    function downloadPage() {
-      const htmlContent = document.documentElement.outerHTML;
-      const blob = new Blob([htmlContent], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'TimeSync_Key_Generator.html';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
     async function generateInputCode() {
       const entropyOutput = document.getElementById("entropyOutput");
       const progressOutput = document.getElementById("progressOutput");
@@ -640,26 +624,21 @@ v 2025.04-c
         return;
       }
 
-      const smoothProgressAnimation = async () => {
-        const duration = 3000; // 3 seconds for the animation
-        const steps = 100; // Number of increments
-        const stepTime = duration / steps; // Time per step
-        let progress = 0;
-
-        for (let i = 0; i <= steps; i++) {
-          progress = (i / steps) * 100;
-          await new Promise(resolve => setTimeout(resolve, stepTime));
+      let progressInterval;
+      try {
+        const targetTime = 3000;
+        const startTime = performance.now();
+        progressInterval = setInterval(() => {
+          const elapsed = performance.now() - startTime;
+          const progress = Math.min((elapsed / targetTime) * 100, 100);
           requestAnimationFrame(() => {
             newProgressBar.style.width = `${progress}%`;
             newProgressBar.textContent = `${Math.floor(progress)}%`;
-            newProgressContainer.offsetHeight; // Force repaint
+            newProgressContainer.offsetHeight;
           });
-        }
-      };
+        }, 50);
 
-      try {
-        // Start the progress animation concurrently with the seed generation
-        const animationPromise = smoothProgressAnimation();
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         const randomBytes = new Uint8Array(256);
         window.crypto.getRandomValues(randomBytes);
@@ -683,7 +662,7 @@ v 2025.04-c
           hash = CryptoJS.SHA256(hash + saltHex + i).toString();
           iterations++;
         }
-        while (performance.now() - startMixing < 3000) {
+        while (performance.now() - startMixing < targetTime) {
           hash = CryptoJS.SHA256(hash + saltHex + iterations).toString();
           iterations++;
         }
@@ -692,16 +671,13 @@ v 2025.04-c
         console.log(`Entropy mixing took ${mixingTime} ms with ${iterations} iterations`);
 
         let inputCode = "";
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0;  i < 50; i++) {
           hash = CryptoJS.SHA256(hash + i).toString();
           const byte = parseInt(hash.slice(0, 2), 16);
           inputCode += charset[byte % charset.length];
         }
 
-        // Wait for the animation to complete
-        await animationPromise;
-
-        // Finalize the progress bar and hide it after a brief delay
+        clearInterval(progressInterval);
         requestAnimationFrame(() => {
           newProgressBar.style.width = "100%";
           newProgressBar.textContent = "100%";
@@ -742,7 +718,7 @@ v 2025.04-c
                 utcTimeSpan.textContent = new Date().toUTCString();
               }
             }, 1000);
-          }, 500); // Brief delay before hiding progress bar
+          }, 1000);
         });
 
         inputCodeField.value = inputCode;
@@ -756,6 +732,7 @@ v 2025.04-c
         errorDiv.innerText = "Failed to generate seed. Please try again.";
         entropyOutput.innerHTML = '';
         newProgressContainer.style.display = "none";
+        if (progressInterval) clearInterval(progressInterval);
       }
     }
 
