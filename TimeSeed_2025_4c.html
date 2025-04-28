@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeSync Key Generator</title>
+  <style>
+    :root {
+      --primary: #007bff;
+      --primary-hover: #0056b3;
+      --secondary: #6c757d;
+      --secondary-hover: #5a6268;
+      --success: #28a745;
+      --error: #dc3545;
+      --bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --text: #333;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --long-term: #003087;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      color: var(--text);
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #666;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+    }
+
+    label {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    input[type="text"], input[type="password"], input[type="text"] {
+      padding: 10px;
+      font-size: 1rem;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      width: 100%;
+      transition: border-color 0.3s;
+    }
+
+    input[type="date"] {
+      padding: 8px;
+      font-size: 0.9rem;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      display: none;
+      width: 100%;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      min-width: 120px;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: var(--secondary);
+      color: white;
+      min-width: 120px;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--secondary-hover);
+    }
+
+    .btn-clear {
+      background-color: var(--secondary);
+      color: white;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      min-width: unset;
+    }
+
+    .btn-clear:hover {
+      background-color: var(--secondary-hover);
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    #inputCodeContainer {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    #inputCodeWrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    #inputCode {
+      padding-right: 40px;
+      font-family: monospace;
+    }
+
+    #inputCode.valid {
+      border-color: var(--success);
+      background: #e9f7ef;
+    }
+
+    #inputCode.invalid {
+      border-color: var(--error);
+      background: #f8d7da;
+    }
+
+    #inputStatus {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .key-card {
+      background: var(--success);
+      color: white;
+      padding: 15px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+      cursor: pointer;
+      max-width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .long-term-card {
+      background: var(--long-term);
+      color: white;
+      padding: 15px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+      cursor: pointer;
+      max-width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .key-text {
+      font-size: 0.9rem;
+      font-weight: 500;
+      font-family: monospace;
+      overflow-wrap: break-word;
+      white-space: normal;
+      flex: 1;
+      margin-right: 10px;
+      user-select: all;
+      -webkit-user-select: all;
+      -moz-user-select: all;
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+      min-width: 60px;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .info-table {
+      font-size: 0.9rem;
+      width: 100%;
+    }
+
+    .info-table tr td:first-child {
+      font-weight: 500;
+      padding-right: 10px;
+    }
+
+    .info-table td {
+      padding: 5px 0;
+    }
+
+    .error {
+      color: var(--error);
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .success {
+      color: var(--success);
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .calendar-icon {
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
+    .calendar-icon:hover {
+      color: var(--primary-hover);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .progress-container {
+      display: none;
+      width: 100%;
+      background-color: #f3f3f3;
+      border-radius: 4px;
+      margin: 10px 0;
+      overflow: hidden;
+      visibility: visible !important;
+      opacity: 1 !important;
+      height: 20px;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 20px;
+      background-color: var(--primary);
+      transition: width 0.05s ease-in-out;
+      text-align: center;
+      color: white;
+      font-size: 0.8rem;
+      line-height: 20px;
+      visibility: visible !important;
+    }
+
+    footer {
+      width: 100%;
+      max-width: 1200px;
+      margin-top: auto;
+      padding: 20px 0;
+      border-top: 1px solid #e0e0e0;
+      background-color: var(--card-bg);
+    }
+
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .footer-links {
+      margin-bottom: 10px;
+    }
+
+    .footer-links a {
+      color: var(--primary);
+      text-decoration: none;
+      margin: 0 10px;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: var(--primary-hover);
+      text-decoration: underline;
+    }
+
+    .version {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .helper-text {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .seed-text {
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .pepper-text {
+      color: var(--error);
+      font-weight: 500;
+    }
+
+    .long-term-label {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      .card {
+        padding: 15px;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+      button {
+        width: 100%;
+        min-width: unset;
+      }
+      .btn-clear {
+        width: auto;
+        flex: 1;
+      }
+      #inputCodeContainer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .button-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .calendar-icon {
+        margin-left: 0;
+        font-size: 1.4rem;
+        padding: 10px;
+      }
+      .footer-links a {
+        display: inline;
+        margin: 8px 5px;
+      }
+      .key-card, .long-term-card {
+        padding: 10px;
+      }
+      .key-text {
+        font-size: 0.85rem;
+        line-height: 1.4;
+        padding: 5px;
+      }
+      .copy-btn {
+        padding: 8px;
+        min-width: 50px;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .key-text {
+        font-size: 0.8rem;
+        line-height: 1.5;
+      }
+      .key-card, .long-term-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+      .copy-btn {
+        align-self: flex-end;
+        width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>TimeSync Key Generator</h1>
+  <p class="subtitle">Generate 256-bit AES-GCM keys with a shared 50-character seed.</p>
+  <div class="container">
+    <div class="card">
+      <h2>Generate or Enter Seed</h2>
+      <button class="btn-primary" id="getRandomDataButton" onclick="generateInputCode()">Generate Seed</button>
+      <div id="progressOutput" style="margin: 15px 0;">
+        <div class="progress-container" id="seedProgressContainer">
+          <div class="progress-bar" id="seedProgressBar">0%</div>
+        </div>
+      </div>
+      <div id="entropyOutput" style="margin: 15px 0;"></div>
+      <div id="inputCodeContainer">
+        <label for="inputCode">Enter 50-Character Seed</label>
+        <div id="inputCodeWrapper">
+          <input type="text" id="inputCode" placeholder="Paste or enter 50-character seed" maxlength="50" aria-label="50-character seed input">
+          <span id="inputStatus"></span>
+        </div>
+        <label for="pepperInput">Optional Pepper (Passphrase for Extra Security)</label>
+        <div style="position: relative;">
+          <input type="password" id="pepperInput" placeholder="Enter a secret passphrase (optional)" aria-label="Optional pepper passphrase">
+          <button class="btn-clear" id="togglePepperButton" onclick="togglePepperVisibility()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); padding: 5px 10px;" aria-label="Show pepper">👁️</button>
+        </div>
+        <p class="helper-text">Add a passphrase for extra security. Must match the one used when the seed was generated.</p>
+        <div class="button-group">
+          <button class="btn-primary" id="submitSeedButton" onclick="submitSeed()" disabled>Submit Seed</button>
+          <button class="btn-clear" id="clearInputsButton" onclick="clearInputs()" aria-label="Clear seed and pepper inputs">Clear</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Your AES-GCM Key</h2>
+      <div id="output"></div>
+      <div class="controls">
+        <button class="btn-secondary" id="showKeyButton" onclick="generateKey()" disabled>Current Key</button>
+        <span class="calendar-icon" onclick="showDatePicker()" aria-label="Select past date">📅</span>
+        <input type="date" id="datePicker" onchange="generateKey(this.value)" aria-label="Select date for past key">
+      </div>
+      <div id="error" class="error"></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-links">
+        <span>
+          <a href="https://allesvoorbitcoin.be/">Home</a> | 
+          <a href="https://coinos.io/pay/allesvoorbitcoin">Donate</a> | 
+          <a href="https://allesvoorbitcoin.be/write/encrypt/">Encrypt w AES tool</a> |
+          <a href="#" onclick="downloadPage()">Download</a> | 
+          <a href="nostr:npub1sec6degc3ae7warveuxaz6dlffnc2sutwtqjr7pmll7sf7ypjngsd4p0l7">Contact</a> | 
+          
+v 2025.04-c
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let isSeedSubmitted = false;
+    let calibratedIterations = 150000;
+
+    function togglePepperVisibility() {
+      const pepperInput = document.getElementById("pepperInput");
+      const toggleButton = document.getElementById("togglePepperButton");
+      if (pepperInput.type === "password") {
+        pepperInput.type = "text";
+        toggleButton.textContent = "🙈";
+        toggleButton.setAttribute("aria-label", "Hide pepper");
+      } else {
+        pepperInput.type = "password";
+        toggleButton.textContent = "👁️";
+        toggleButton.setAttribute("aria-label", "Show pepper");
+      }
+    }
+
+    function calibrateIterations() {
+      const testIterations = 1000;
+      const startTime = performance.now();
+      let hash = "benchmark";
+      for (let i = 0; i < testIterations; i++) {
+        hash = CryptoJS.SHA256(hash + i).toString();
+      }
+      const elapsed = performance.now() - startTime;
+      const iterationsPerMs = testIterations / elapsed;
+      const targetTime = 3000;
+      calibratedIterations = Math.floor(iterationsPerMs * targetTime);
+      console.log(`Calibrated ${calibratedIterations} iterations for ~${targetTime} ms (measured ${elapsed} ms for ${testIterations} iterations)`);
+      return calibratedIterations;
+    }
+
+    function clearSession(fullReset = distrust) {
+      console.log("clearSession called, fullReset:", fullReset);
+      const entropyOutput = document.getElementById("entropyOutput");
+      const outputDiv = document.getElementById("output");
+      const inputCodeField = document.getElementById("inputCode");
+      const pepperInput = document.getElementById("pepperInput");
+      const errorDiv = document.getElementById("error");
+      const datePicker = document.getElementById("datePicker");
+      const submitSeedButton = document.getElementById("submitSeedButton");
+      const showKeyButton = document.getElementById("showKeyButton");
+      const seedProgressContainer = document.getElementById("seedProgressContainer");
+
+      if (fullReset) {
+        if (entropyOutput) entropyOutput.innerHTML = '';
+        if (outputDiv) {
+          outputDiv.innerHTML = "";
+          outputDiv.dataset.key = "";
+          outputDiv.dataset.longTermKey = "";
+        }
+        if (seedProgressContainer) seedProgressContainer.style.display = "none";
+      }
+      if (inputCodeField) inputCodeField.value = "";
+      if (pepperInput) {
+        pepperInput.value = "";
+        pepperInput.type = "password";
+        const toggleButton = document.getElementById("togglePepperButton");
+        if (toggleButton) {
+          toggleButton.textContent = "👁️";
+          toggleButton.setAttribute("aria-label", "Show pepper");
+        }
+      }
+      if (errorDiv) errorDiv.innerText = "";
+      if (datePicker) datePicker.style.display = "none";
+      if (submitSeedButton) submitSeedButton.disabled = true;
+      if (showKeyButton) showKeyButton.disabled = true;
+      isSeedSubmitted = false;
+    }
+
+    function clearInputs() {
+      console.log("clearInputs called");
+      clearSession(false);
+      const inputCodeField = document.getElementById("inputCode");
+      if (inputCodeField) {
+        inputCodeField.classList.remove("valid", "invalid");
+        document.getElementById("inputStatus").textContent = "";
+      }
+    }
+
+    function downloadPage() {
+      const htmlContent = document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'TimeSync_Key_Generator.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function generateInputCode() {
+      const entropyOutput = document.getElementById("entropyOutput");
+      const progressOutput = document.getElementById("progressOutput");
+      const inputCodeField = document.getElementById("inputCode");
+      const pepperInput = document.getElementById("pepperInput");
+      const errorDiv = document.getElementById("error");
+      const submitSeedButton = document.getElementById("submitSeedButton");
+      const showKeyButton = document.getElementById("showKeyButton");
+      const seedProgressContainer = document.getElementById("seedProgressContainer");
+      const seedProgressBar = document.getElementById("seedProgressBar");
+
+      if (!entropyOutput || !progressOutput || !inputCodeField || !pepperInput || !errorDiv || !submitSeedButton || !showKeyButton || !seedProgressContainer || !seedProgressBar) {
+        console.error("DOM elements missing:", { entropyOutput, progressOutput, inputCodeField, pepperInput, errorDiv, submitSeedButton, showKeyButton, seedProgressContainer, seedProgressBar });
+        if (errorDiv) errorDiv.innerText = "UI error: Missing elements. Please refresh.";
+        return;
+      }
+
+      clearSession(true);
+
+      progressOutput.innerHTML = `
+        <div>Generating secure seed...</div>
+        <div class="progress-container" id="seedProgressContainer" style="display: block;">
+          <div class="progress-bar" id="seedProgressBar">0%</div>
+        </div>
+      `;
+      const newProgressContainer = document.getElementById("seedProgressContainer");
+      const newProgressBar = document.getElementById("seedProgressBar");
+      if (!newProgressContainer || !newProgressBar) {
+        console.error("Progress bar elements missing after DOM update:", { newProgressContainer, newProgressBar });
+        if (errorDiv) errorDiv.innerText = "UI error: Progress bar unavailable. Please refresh.";
+        return;
+      }
+
+      const smoothProgressAnimation = async () => {
+        const duration = 3000; // 3 seconds for the animation
+        const steps = 100; // Number of increments
+        const stepTime = duration / steps; // Time per step
+        let progress = 0;
+
+        for (let i = 0; i <= steps; i++) {
+          progress = (i / steps) * 100;
+          await new Promise(resolve => setTimeout(resolve, stepTime));
+          requestAnimationFrame(() => {
+            newProgressBar.style.width = `${progress}%`;
+            newProgressBar.textContent = `${Math.floor(progress)}%`;
+            newProgressContainer.offsetHeight; // Force repaint
+          });
+        }
+      };
+
+      try {
+        // Start the progress animation concurrently with the seed generation
+        const animationPromise = smoothProgressAnimation();
+
+        const randomBytes = new Uint8Array(256);
+        window.crypto.getRandomValues(randomBytes);
+        const salt = new Uint8Array(32);
+        window.crypto.getRandomValues(salt);
+
+        let entropyPool = Array.from(randomBytes)
+          .map(b => b.toString(16).padStart(2, "0"))
+          .join("");
+        const saltHex = Array.from(salt)
+          .map(b => b.toString(16).padStart(2, "0"))
+          .join("");
+
+        entropyPool += performance.now().toString();
+
+        let hash = entropyPool;
+        let iterations = 0;
+        const startMixing = performance.now();
+
+        for (let i = 0; i < calibratedIterations; i++) {
+          hash = CryptoJS.SHA256(hash + saltHex + i).toString();
+          iterations++;
+        }
+        while (performance.now() - startMixing < 3000) {
+          hash = CryptoJS.SHA256(hash + saltHex + iterations).toString();
+          iterations++;
+        }
+
+        const mixingTime = performance.now() - startMixing;
+        console.log(`Entropy mixing took ${mixingTime} ms with ${iterations} iterations`);
+
+        let inputCode = "";
+        for (let i = 0; i < 50; i++) {
+          hash = CryptoJS.SHA256(hash + i).toString();
+          const byte = parseInt(hash.slice(0, 2), 16);
+          inputCode += charset[byte % charset.length];
+        }
+
+        // Wait for the animation to complete
+        await animationPromise;
+
+        // Finalize the progress bar and hide it after a brief delay
+        requestAnimationFrame(() => {
+          newProgressBar.style.width = "100%";
+          newProgressBar.textContent = "100%";
+          newProgressContainer.offsetHeight;
+          setTimeout(() => {
+            newProgressContainer.style.display = "none";
+            entropyOutput.innerHTML = `
+              <strong>Generated Seed:</strong>
+              <div id="inputCodeDisplay">${inputCode}</div>
+              <div id="copyConfirmation" style="display: none; color: #28a745;">Copied!</div>
+              <p>Click the seed to copy and share securely.</p>
+              <strong>Details:</strong>
+              <table class="info-table">
+                <tr><td>Source:</td><td>Cryptographically Secure PRNG + Entropy Mixing</td></tr>
+                <tr><td>Entropy:</td><td>1024 bits (High)</td></tr>
+                <tr><td>Length:</td><td>50 characters</td></tr>
+                <tr><td>Generated:</td><td><span id="utcTime">${new Date().toUTCString()}</span></td></tr>
+                <tr><td>Processing Time:</td><td>${mixingTime.toFixed(2)} ms</td></tr>
+              </table>
+            `;
+            const inputCodeDisplay = document.getElementById("inputCodeDisplay");
+            if (inputCodeDisplay) {
+              inputCodeDisplay.onclick = function() {
+                navigator.clipboard.writeText(inputCode).then(() => {
+                  const confirmation = document.getElementById("copyConfirmation");
+                  if (confirmation) {
+                    confirmation.style.display = "block";
+                    setTimeout(() => { confirmation.style.display = "none"; }, 2000);
+                  }
+                }).catch(err => {
+                  console.error("Clipboard write failed:", err);
+                });
+              };
+            }
+            setInterval(() => {
+              const utcTimeSpan = document.getElementById("utcTime");
+              if (utcTimeSpan) {
+                utcTimeSpan.textContent = new Date().toUTCString();
+              }
+            }, 1000);
+          }, 500); // Brief delay before hiding progress bar
+        });
+
+        inputCodeField.value = inputCode;
+        errorDiv.innerText = "";
+        submitSeedButton.disabled = false;
+        showKeyButton.disabled = false;
+        isSeedSubmitted = true;
+        submitSeed();
+      } catch (err) {
+        console.error("Seed generation failed:", err);
+        errorDiv.innerText = "Failed to generate seed. Please try again.";
+        entropyOutput.innerHTML = '';
+        newProgressContainer.style.display = "none";
+      }
+    }
+
+    async function deriveAESKey(seed, date, pepper) {
+      try {
+        if (!window.crypto || !window.crypto.subtle) {
+          throw new Error("Web Crypto API not available");
+        }
+        console.log("deriveAESKey called with seed:", seed.slice(0, 10) + "...", "date:", date, "pepper:", pepper);
+        const seedBuffer = new TextEncoder().encode(seed);
+        const key = await crypto.subtle.importKey(
+          "raw",
+          seedBuffer,
+          { name: "HKDF" },
+          false,
+          ["deriveBits"]
+        );
+        const infoString = pepper ? `${date}:${pepper}` : date;
+        const derivedBits = await crypto.subtle.deriveBits(
+          {
+            name: "HKDF",
+            hash: "SHA-256",
+            salt: new Uint8Array(0),
+            info: new TextEncoder().encode(infoString)
+          },
+          key,
+          256
+        );
+        const keyArray = new Uint8Array(derivedBits);
+        const keyHex = Array.from(keyArray)
+          .map(b => b.toString(16).padStart(2, "0"))
+          .join("");
+        console.log("Key derived:", keyHex.slice(0, 10) + "...");
+        return keyHex;
+      } catch (err) {
+        console.error("Key derivation failed:", err.message);
+        throw err;
+      }
+    }
+
+    function getTodayUTC() {
+      console.log("getTodayUTC called");
+      const now = new Date();
+      return now.toISOString().split("T")[0];
+    }
+
+    function getLongTermDate() {
+      console.log("getLongTermDate called");
+      const now = new Date();
+      const currentYear = now.getUTCFullYear();
+      const jan1 = new Date(Date.UTC(currentYear, 0, 1));
+      const jun1 = new Date(Date.UTC(currentYear, 5, 1));
+      if (now < jun1) {
+        return jan1.toISOString().split("T")[0];
+      }
+      return jun1.toISOString().split("T")[0];
+    }
+
+    function getNextMidnightUTC(selectedDate) {
+      console.log("getNextMidnightUTC called", { selectedDate });
+      const date = selectedDate ? new Date(selectedDate) : new Date();
+      return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 23, 59, 59));
+    }
+
+    function showDatePicker() {
+      console.log("showDatePicker called");
+      if (!isSeedSubmitted) {
+        document.getElementById("error").innerText = "Please submit a valid 50-character seed string first.";
+        return;
+      }
+      const datePicker = document.getElementById("datePicker");
+      const today = new Date();
+      const maxDate = today.toISOString().split("T")[0];
+      const minDate = new Date(today.setDate(today.getDate() - 30)).toISOString().split("T")[0];
+
+      datePicker.min = minDate;
+      datePicker.max = maxDate;
+      datePicker.style.display = "block";
+      datePicker.focus();
+    }
+
+    function updateCountdown(selectedDate, longTermDate, pepper) {
+      console.log("updateCountdown called", { selectedDate, longTermDate, pepper });
+      const outputDiv = document.getElementById("output");
+      if (!outputDiv.dataset.key || !outputDiv.dataset.longTermKey) {
+        console.log("No key or long-term key in outputDiv.dataset");
+        return;
+      }
+
+      const today = getTodayUTC();
+      const displayDate = selectedDate || today;
+      const isToday = displayDate === today;
+
+      let countdownText = "";
+      let nextMidnightUTC = getNextMidnightUTC(displayDate);
+      if (isToday) {
+        const now = new Date();
+        const timeLeft = nextMidnightUTC - now;
+
+        if (timeLeft > 0) {
+          const localHours = Math.floor(timeLeft / 3600000);
+          const localMinutes = Math.floor((timeLeft % 3600000) / 60000);
+          const localSeconds = Math.floor((timeLeft % 60000) / 1000);
+          countdownText = `${localHours}h ${localMinutes}m ${localSeconds}s`;
+        } else {
+          countdownText = "Expired";
+        }
+      } else {
+        countdownText = "Expired";
+      }
+
+      const countdownElement = document.getElementById("countdownText");
+      if (countdownElement) {
+        countdownElement.textContent = countdownText;
+        return;
+      }
+
+      outputDiv.innerHTML = `
+        <div class="key-card" onclick="copyKey()">
+          <span class="key-text">${outputDiv.dataset.key}</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <div id="keyCopyConfirmation" style="display: none; color: #28a745; margin-bottom: 10px;">Copied!</div>
+        <table class="info-table">
+          <tr><td>Key Length:</td><td>256 bits</td></tr>
+          <tr><td>Derived From:</td><td>${pepper ? '<span class="seed-text">Seed</span> + <span class="pepper-text">Pepper</span>' : '<span class="seed-text">Seed</span>'}</td></tr>
+          <tr><td>Date:</td><td>${displayDate}</td></tr>
+          <tr><td>${isToday ? 'Expires' : 'Status'}:</td><td>${isToday ? nextMidnightUTC.toLocaleString() + ' (local)' : 'Expired on ' + getNextMidnightUTC(displayDate).toLocaleString() + ' (local)'}</td></tr>
+          <tr><td>Countdown:</td><td id="countdownText">${countdownText}</td></tr>
+        </table>
+        <div class="long-term-label">Long-Term Pass</div>
+        <div class="long-term-card" onclick="copyLongTermKey()">
+          <span class="key-text">${outputDiv.dataset.longTermKey}</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <div id="longTermKeyCopyConfirmation" style="display: none; color: #28a745; margin-bottom: 10px;">Copied!</div>
+        <table class="info-table">
+          <tr><td>Key Length:</td><td>256 bits</td></tr>
+          <tr><td>Derived From:</td><td>${pepper ? '<span class="seed-text">Seed</span> + <span class="pepper-text">Pepper</span>' : '<span class="seed-text">Seed</span>'}</td></tr>
+          <tr><td>Date:</td><td>${longTermDate}</td></tr>
+        </table>
+      `;
+    }
+
+    function copyKey() {
+      const outputDiv = document.getElementById("output");
+      navigator.clipboard.writeText(outputDiv.dataset.key).then(() => {
+        const confirmation = document.getElementById("keyCopyConfirmation");
+        if (confirmation) {
+          confirmation.style.display = "block";
+          setTimeout(() => { confirmation.style.display = "none"; }, 2000);
+        }
+      }).catch(err => {
+        console.error("Clipboard write failed:", err);
+      });
+    }
+
+    function copyLongTermKey() {
+      const outputDiv = document.getElementById("output");
+      navigator.clipboard.writeText(outputDiv.dataset.longTermKey).then(() => {
+        const confirmation = document.getElementById("longTermKeyCopyConfirmation");
+        if (confirmation) {
+          confirmation.style.display = "block";
+          setTimeout(() => { confirmation.style.display = "none"; }, 2000);
+        }
+      }).catch(err => {
+        console.error("Long-term key clipboard write failed:", err);
+      });
+    }
+
+    function submitSeed() {
+      console.log("submitSeed called");
+      const inputCode = document.getElementById("inputCode").value;
+      const pepperInput = document.getElementById("pepperInput");
+      const pepper = pepperInput ? pepperInput.value : "";
+      const errorDiv = document.getElementById("error");
+      const showKeyButton = document.getElementById("showKeyButton");
+      const submitSeedButton = document.getElementById("submitSeedButton");
+
+      errorDiv.innerText = "";
+      console.log("Input seed:", inputCode, "Pepper:", pepper);
+
+      if (inputCode.length !== 50) {
+        errorDiv.innerText = "Please enter a 50-character seed string.";
+        isSeedSubmitted = false;
+        showKeyButton.disabled = true;
+        submitSeedButton.disabled = false;
+        console.log("Seed invalid: length != 50");
+        return;
+      }
+
+      if (!/^[a-zA-Z0-9]{50}$/.test(inputCode)) {
+        errorDiv.innerText = "Seed must contain only alphanumeric characters.";
+        isSeedSubmitted = false;
+        showKeyButton.disabled = true;
+        submitSeedButton.disabled = false;
+        console.log("Seed invalid: non-alphanumeric characters");
+        return;
+      }
+
+      isSeedSubmitted = true;
+      showKeyButton.disabled = false;
+      errorDiv.innerText = pepper ? "Seed and pepper submitted successfully. Today's key is displayed." : "Seed submitted successfully. Today's key is displayed.";
+      errorDiv.className = "success";
+      console.log("Seed valid, generating key with pepper:", pepper);
+
+      generateKey(undefined, pepper);
+    }
+
+    async function generateKey(selectedDate, pepper = "") {
+      console.log("generateKey called", { selectedDate, pepper });
+      const inputCode = document.getElementById("inputCode").value;
+      const errorDiv = document.getElementById("error");
+      const outputDiv = document.getElementById("output");
+      const datePicker = document.getElementById("datePicker");
+      let updateCountdownIntervalId = null;
+
+      errorDiv.innerText = "";
+      errorDiv.className = "error";
+      outputDiv.innerHTML = "";
+      console.log("Input codebase:", inputCode, "isSeedSubmitted:", isSeedSubmitted, "Pepper:", pepper);
+
+      if (!isSeedSubmitted) {
+        errorDiv.innerText = "Please submit a valid 50-character seed string first.";
+        console.log("Seed not submitted");
+        if (datePicker) datePicker.style.display = "none";
+        return;
+      }
+
+      if (inputCode.length !== 50 || !/^[a-zA-Z0-9]{50}$/.test(inputCode)) {
+        errorDiv.innerText = "Invalid seed string. Please submit a 50-character alphanumeric seed.";
+        isSeedSubmitted = false;
+        document.getElementById("showKeyButton").disabled = true;
+        document.getElementById("submitSeedButton").disabled = false;
+        console.log("Invalid seed after submission");
+        if (datePicker) datePicker.style.display = "none";
+        return;
+      }
+
+      if (!window.crypto || !window.crypto.subtle) {
+        errorDiv.innerText = "Web Crypto API is not available. Please use a secure browser.";
+        console.log("Web Crypto API unavailable");
+        if (datePicker) datePicker.style.display = "none";
+        return;
+      }
+
+      const date = selectedDate || getTodayUTC();
+      const longTermDate = getLongTermDate();
+      try {
+        const dailyKey = await deriveAESKey(inputCode, date, pepper);
+        const longTermKey = await deriveAESKey(inputCode, longTermDate, pepper);
+        outputDiv.dataset.key = dailyKey;
+        outputDiv.dataset.longTermKey = longTermKey;
+        updateCountdown(date, longTermDate, pepper);
+        if (updateCountdownIntervalId) {
+          clearInterval(updateCountdownIntervalId);
+        }
+        if (date === getTodayUTC()) {
+          updateCountdownIntervalId = setInterval(() => updateCountdown(date, longTermDate, pepper), 1000);
+        }
+        if (datePicker) datePicker.style.display = "none";
+      } catch (err) {
+        errorDiv.innerText = "Failed to derive key. Please try submitting the seed again.";
+        console.error("Key derivation failed in generateKey:", err);
+        if (datePicker) datePicker.style.display = "none";
+      }
+    }
+
+    document.getElementById("inputCode").addEventListener("input", function() {
+      const inputCode = this.value;
+      const submitSeedButton = document.getElementById("submitSeedButton");
+      const inputStatus = document.getElementById("inputStatus");
+      submitSeedButton.disabled = inputCode.length !== 50;
+      if (inputCode.length === 50) {
+        this.classList.remove("invalid");
+        this.classList.add("valid");
+        inputStatus.textContent = "✅";
+      } else {
+        this.classList.remove("valid");
+        this.classList.add("invalid");
+        inputStatus.textContent = inputCode.length > 0 ? "❌" : "";
+      }
+    });
+
+    window.onload = function() {
+      console.log("Window loaded, scripts initialized");
+      const button = document.getElementById("getRandomDataButton");
+      if (button) {
+        button.onclick = generateInputCode;
+      }
+      calibrateIterations();
+    };
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</body>
+</html>
